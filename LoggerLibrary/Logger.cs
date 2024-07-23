@@ -1,5 +1,4 @@
-﻿using LoggerLibrary;
-using System;
+﻿using System;
 using System.IO;
 
 namespace LoggerLibrary
@@ -12,8 +11,22 @@ namespace LoggerLibrary
 
         private Logger()
         {
-            _logFilePath = "application.log";
-            Console.WriteLine("Logger initialized.");
+            string logDirectory = @"C:\Logs";
+            _logFilePath = Path.Combine(logDirectory, "application.log");
+
+            try
+            {
+                if (!Directory.Exists(logDirectory))
+                {
+                    Directory.CreateDirectory(logDirectory);
+                }
+
+                Console.WriteLine("Logger initialized.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Directory creation error: {ex.Message}");
+            }
         }
 
         public static Logger Instance
@@ -35,13 +48,22 @@ namespace LoggerLibrary
         {
             try
             {
+                string logDirectory = Path.GetDirectoryName(_logFilePath);
+                if (!Directory.Exists(logDirectory))
+                {
+                    Directory.CreateDirectory(logDirectory);
+                }
+
                 File.AppendAllText(_logFilePath, $"{DateTime.Now}: {message}{Environment.NewLine}");
             }
             catch (IOException ex)
             {
                 Console.WriteLine($"Logging error: {ex.Message}");
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Unexpected error: {ex.Message}");
+            }
         }
     }
 }
-
